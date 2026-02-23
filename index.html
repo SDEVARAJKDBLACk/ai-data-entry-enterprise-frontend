@@ -15,7 +15,7 @@ async function send(){
  const fd = new FormData();
  fd.append("text",t);
  if(f) fd.append("file",f);
- const res = await fetch("RENDER_BACKEND_URL/analyze",{method:"POST",body:fd});
+ const res = await fetch("https://ai-data-entry-enterprise-backend-1.onrender.com ",{method:"POST",body:fd});
  const data = await res.json();
  document.getElementById("out").innerText = JSON.stringify(data,null,2);
 }
