@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html>
+<head><title>AI Data Entry</title></head>
+<body>
+<h2>AI Data Entry Enterprise</h2>
+<textarea id="text" rows="6" cols="50"></textarea><br><br>
+<input type="file" id="file"><br><br>
+<button onclick="send()">Analyze</button>
+<pre id="out"></pre>
+<script>
+async function send(){
+ const f = document.getElementById('file').files[0];
+ const t = document.getElementById('text').value;
+ const fd = new FormData();
+ fd.append("text",t);
+ if(f) fd.append("file",f);
+ const res = await fetch("RENDER_BACKEND_URL/analyze",{method:"POST",body:fd});
+ const data = await res.json();
+ document.getElementById("out").innerText = JSON.stringify(data,null,2);
+}
+</script>
+</body>
+</html>
