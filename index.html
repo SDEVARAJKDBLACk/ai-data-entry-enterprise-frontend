@@ -1,67 +1,154 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>AI Data Entry Enterprise</title>
+<title>AI Data Entry – Automated Data Worker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{background:#0f172a;color:white;font-family:Arial;margin:0}
-.app{max-width:1100px;margin:auto;padding:30px}
-.card{background:#111827;padding:20px;border-radius:12px;margin-bottom:20px}
-textarea,input{width:100%;padding:10px;border-radius:6px;border:none;margin-top:10px}
-button{padding:10px 15px;border:none;border-radius:6px;margin:5px;cursor:pointer}
-.btn{background:#2563eb;color:white}
-.btn2{background:#16a34a;color:white}
-pre{background:black;padding:15px;border-radius:6px;overflow:auto}
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#0f172a,#020617);
+color:white;
+}
+.container{
+max-width:1100px;
+margin:auto;
+padding:20px;
+}
+.card{
+background:rgba(255,255,255,0.05);
+border-radius:12px;
+padding:20px;
+margin-bottom:20px;
+box-shadow:0 0 20px rgba(0,0,0,0.3);
+}
+textarea{
+width:100%;
+height:160px;
+border-radius:8px;
+border:none;
+padding:10px;
+font-size:15px;
+}
+button{
+padding:10px 16px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+.btn-analyze{background:#06b6d4;}
+.btn-clear{background:#22c55e;}
+.btn-export{background:#6366f1;}
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+th,td{
+padding:10px;
+border-bottom:1px solid rgba(255,255,255,0.1);
+text-align:left;
+}
+input{
+padding:8px;
+border-radius:6px;
+border:none;
+}
 </style>
 </head>
+
 <body>
-<div class="app">
-<h1>AI Data Entry – Automated Data Worker</h1>
+<div class="container">
+
+<h2>AI Data Entry – Automated Data Worker</h2>
 
 <div class="card">
-<input type="file" id="fileInput">
-<textarea id="textInput" placeholder="Enter or paste input"></textarea>
-<button class="btn" onclick="analyze()">Analyze</button>
-<button class="btn2" onclick="loadHistory()">Load History</button>
-<button class="btn" onclick="exportExcel()">Export Excel</button>
+<textarea id="textInput" placeholder="Enter or paste input"></textarea><br><br>
+<button class="btn-analyze" onclick="analyze()">Analyze</button>
+<button class="btn-clear" onclick="clearData()">Clear</button>
+<button class="btn-export" onclick="exportExcel()">Export Excel</button>
 </div>
 
 <div class="card">
 <h3>Extracted Data</h3>
-<pre id="result"></pre>
+<table>
+<thead><tr><th>Field</th><th>Value</th></tr></thead>
+<tbody id="dataTable"></tbody>
+</table>
+</div>
+
+<div class="card">
+<h3>+ Custom Fields</h3>
+<input id="fieldName" placeholder="Field name">
+<input id="fieldValue" placeholder="Value">
+<button onclick="addField()">Add</button>
 </div>
 
 <div class="card">
 <h3>Last 10 Analysis</h3>
-<pre id="history"></pre>
+<ul id="historyList"></ul>
 </div>
+
 </div>
 
 <script>
-const API = "https://ai-data-entry-enterprise-backend-3.onrender.com";
+const API = "https://ai-data-entry-enterprise-backend-3.onrender.com";  // replace after deploy
 
 async function analyze(){
-  const text = document.getElementById('textInput').value;
-  const file = document.getElementById('fileInput').files[0];
-  const form = new FormData();
-  form.append('text', text);
-  if(file) form.append('file', file);
+const text = document.getElementById("textInput").value;
+const fd = new FormData();
+fd.append("text", text);
 
-  const res = await fetch(API+"/analyze",{method:"POST",body:form});
-  const data = await res.json();
-  document.getElementById('result').innerText = JSON.stringify(data,null,2);
+const res = await fetch(API+"/analyze",{method:"POST",body:fd});
+const data = await res.json();
+renderTable(data.data);
+loadHistory();
+}
+
+function renderTable(data){
+const table = document.getElementById("dataTable");
+table.innerHTML="";
+for(let k in data){
+let tr=document.createElement("tr");
+tr.innerHTML=`<td>${k}</td><td>${data[k].join(", ")}</td>`;
+table.appendChild(tr);
+}
+}
+
+async function addField(){
+const f=document.getElementById("fieldName").value;
+const v=document.getElementById("fieldValue").value;
+const fd=new FormData();
+fd.append("field",f);
+fd.append("value",v);
+const res=await fetch(API+"/custom-field",{method:"POST",body:fd});
+const data=await res.json();
+renderTable(data.data);
 }
 
 async function loadHistory(){
-  const res = await fetch(API+"/history");
-  const data = await res.json();
-  document.getElementById('history').innerText = JSON.stringify(data,null,2);
+const res=await fetch(API+"/history");
+const data=await res.json();
+const list=document.getElementById("historyList");
+list.innerHTML="";
+data.forEach(h=>{
+let li=document.createElement("li");
+li.innerText=h.time;
+list.appendChild(li);
+});
 }
 
 function exportExcel(){
-  window.open(API+"/export");
+window.open(API+"/export","_blank");
+}
+
+function clearData(){
+document.getElementById("dataTable").innerHTML="";
+document.getElementById("textInput").value="";
 }
 </script>
+
 </body>
 </html>
