@@ -95,6 +95,21 @@ border:none;
 
 <script>
 const API = "https://ai-data-entry-enterprise-backend.onrender.com";  // replace after deploy
+  
+async function uploadFile() {
+    const file = document.getElementById("fileInput").files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`${API}/upload`, {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await res.json();
+    renderTable(data.data);
+  }
+
 
 async function analyze(){
 const text = document.getElementById("textInput").value;
