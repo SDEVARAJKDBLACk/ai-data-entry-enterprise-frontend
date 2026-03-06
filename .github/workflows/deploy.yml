@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Inject API Key from Secrets
+      - name: Inject API Key
         run: |
           sed -i 's/__GEMINI_API_KEY__/${{ secrets.GEMINI_API_KEY }}/g' index.html
 
