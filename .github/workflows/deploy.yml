@@ -11,9 +11,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Inject API Key from Secret
+      - name: Inject Gemini API Key
         run: |
-          # index.html la irukira __GEMINI_API_KEY__ placeholder-ai secret key-vudan replace seiyum
+          # index.html la irukira placeholder-ah Secret key vachi replace pannum
           sed -i "s/__GEMINI_API_KEY__/${{ secrets.GEMINI_API_KEY }}/g" index.html
 
       - name: Deploy to GitHub Pages
@@ -22,3 +22,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           publish_branch: gh-pages
+          
