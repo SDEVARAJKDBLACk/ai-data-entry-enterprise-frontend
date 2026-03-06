@@ -2,7 +2,10 @@ name: Deploy LangAI to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main"]  # Main branch-la push pannumbodhu idhu run aagum
+
+permissions:
+  contents: write  # GitHub Pages-la create panna idhu romba mukkiyam
 
 jobs:
   build-and-deploy:
@@ -13,13 +16,14 @@ jobs:
 
       - name: Inject Gemini API Key
         run: |
-          # index.html la irukira __GEMINI_API_KEY__ placeholder-ai secret key-vudan replace seiyum
-          sed -i 's/__GEMINI_API_KEY__/${{ secrets.GEMINI_API_KEY }}/g' index.html
-          
+          # index.html-la irukkira __GEMINI_API_KEY__ placeholder-ai secret key-vudan replace seiyum
+          # 's/old/new/g' format-la sariyaana quotes use pannirukken
+          sed -i 's|__GEMINI_API_KEY__|${{ secrets.GEMINI_API_KEY }}|g' index.html
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          publish_branch: gh-pages
+          publish_branch: gh-pages  # Website indha branch-la thaan load aagum
           
