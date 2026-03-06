@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>LangAI - Gemini Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; overflow: hidden; }
+        .tab-content { display: none; height: 100%; }
+        .tab-content.active { display: flex; flex-direction: column; }
+        .bubble { border-radius: 20px; padding: 12px 16px; font-size: 14px; max-width: 85%; line-height: 1.5; }
+        .bubble-ai { background: white; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; }
+        .bubble-user { background: #4f46e5; color: white; border-bottom-right-radius: 4px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col md:flex-row">
+
+    <aside class="hidden md:flex w-64 bg-white border-r flex-col p-6 space-y-8">
+        <div class="text-indigo-600 font-extrabold text-2xl flex items-center gap-2">
+            <span class="material-icons">school</span> LangAI
+        </div>
+        <nav class="flex-1 space-y-2">
+            <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl font-bold bg-indigo-50 text-indigo-600"><span class="material-icons">person</span> Profile</button>
+            <button onclick="switchTab('chat')" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl font-bold text-slate-400"><span class="material-icons">auto_awesome</span> Nova AI</button>
+            <button onclick="switchTab('translator')" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl font-bold text-slate-400"><span class="material-icons">g_translate</span> Translator</button>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0">
+        
+        <section id="dashboard" class="tab-content active p-6 md:p-10 overflow-y-auto">
+            <h1 class="text-2xl font-black mb-6">User Statistics</h1>
+            <div class="bg-white p-6 rounded-3xl border shadow-sm flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">U</div>
+                <div><h2 class="font-bold">Active Learner</h2><p class="text-xs text-slate-400">Level 12 • 4,200 XP</p></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-indigo-50 p-6 rounded-3xl border border-indigo-100">
+                    <p class="text-[10px] font-bold text-indigo-400 uppercase">Streak</p>
+                    <p class="text-3xl font-black">7 Days</p>
+                </div>
+                <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
+                    <p class="text-[10px] font-bold text-emerald-400 uppercase">Words</p>
+                    <p class="text-3xl font-black">240</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="chat" class="tab-content h-full bg-white">
+            <header class="p-4 border-b flex justify-between items-center px-6">
+                <span class="font-bold text-sm">Nova AI Teacher</span>
+                <select id="teachLang" class="bg-slate-100 text-[10px] font-bold p-1 rounded">
+                    <option value="Tamil">Tamil</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="English">English</option>
+                </select>
+            </header>
+            <div id="chatBox" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+                <div class="flex justify-start"><div class="bubble bubble-ai shadow-sm">Hello! Naan Nova. Neenga enna language padikka puringa?</div></div>
+            </div>
+            <div id="loading" class="hidden px-6 py-1 text-[10px] text-indigo-500 font-bold">Nova is thinking...</div>
+            <div class="p-4 border-t bg-white">
+                <div class="flex gap-2 bg-slate-100 p-1 rounded-2xl border">
+                    <input id="chatInput" type="text" placeholder="Type here..." class="flex-1 bg-transparent px-3 outline-none text-sm h-10">
+                    <button id="micBtn" class="w-10 h-10 bg-white text-slate-400 rounded-xl flex items-center justify-center border shadow-sm"><span class="material-icons">mic</span></button>
+                    <button onclick="askGemini()" class="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg"><span class="material-icons">send</span></button>
+                </div>
+            </div>
+        </section>
+
+        <section id="translator" class="tab-content p-6">
+            <h1 class="text-2xl font-black mb-6">Translator</h1>
+            <div class="bg-white p-6 rounded-3xl border shadow-sm">
+                <textarea id="transInput" class="w-full h-32 bg-transparent outline-none text-lg" placeholder="Enter text..."></textarea>
+                <div class="flex justify-between mt-4 border-t pt-4">
+                    <select id="targetL" class="bg-slate-50 p-2 rounded text-xs font-bold">
+                        <option value="ta">Tamil</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                    <button onclick="translateNow()" class="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold">Translate</button>
+                </div>
+            </div>
+            <div id="transRes" class="mt-4 p-6 bg-indigo-50 rounded-3xl hidden"><p id="transOut" class="text-xl font-black"></p></div>
+        </section>
+
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3">
+            <button onclick="switchTab('dashboard')" class="text-indigo-600 flex flex-col items-center"><span class="material-icons">person</span><span class="text-[10px]">Profile</span></button>
+            <button onclick="switchTab('chat')" class="text-slate-400 flex flex-col items-center"><span class="material-icons">auto_awesome</span><span class="text-[10px]">Nova</span></button>
+            <button onclick="switchTab('translator')" class="text-slate-400 flex flex-col items-center"><span class="material-icons">g_translate</span><span class="text-[10px]">Trans</span></button>
+        </nav>
+    </main>
+
+    <script>
+        // GitHub Action will replace AIzaSyAv3dfOOVGtiFXu7k6zqLalTgE6N3oYzWs with real key
+        const API_KEY = "AIzaSyAv3dfOOVGtiFXu7k6zqLalTgE6N3oYzWs"; 
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        async function askGemini() {
+            const input = document.getElementById('chatInput');
+            const target = document.getElementById('teachLang').value;
+            const text = input.value.trim();
+            if(!text) return;
+
+            addMsg(text, 'user');
+            input.value = "";
+            document.getElementById('loading').classList.remove('hidden');
+
+            const prompt = `User: "${text}". Tutor in ${target}. Correct grammar if needed, explain simply, then translate to ${target}.`;
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await res.json();
+                const aiMsg = data.candidates[0].content.parts[0].text;
+                document.getElementById('loading').classList.add('hidden');
+                addMsg(aiMsg, 'ai');
+                speak(aiMsg);
+            } catch (e) { addMsg("API Error!", 'ai'); }
+        }
+
+        async function translateNow() {
+            const t = document.getElementById('transInput').value;
+            const l = document.getElementById('targetL').value;
+            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=en|${l}`);
+            const data = await res.json();
+            document.getElementById('transOut').innerText = data.responseData.translatedText;
+            document.getElementById('transRes').classList.remove('hidden');
+        }
+
+        function addMsg(c, s) {
+            const b = document.getElementById('chatBox');
+            const d = document.createElement('div');
+            d.className = `flex ${s === 'user' ? 'justify-end' : 'justify-start'}`;
+            d.innerHTML = `<div class="bubble bubble-${s} shadow-sm">${c}</div>`;
+            b.appendChild(d);
+            b.scrollTop = b.scrollHeight;
+        }
+
+        function speak(t) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
+
+        const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        document.getElementById('micBtn').onclick = () => rec.start();
+        rec.onresult = (e) => { document.getElementById('chatInput').value = e.results[0][0].transcript; askGemini(); };
+    </script>
+</body>
+  </html>
+                  
