@@ -1,29 +1,28 @@
-name: Deploy LangAI to GitHub Pages
+name: Deploy LangAI
 
 on:
   push:
-    branches: ["main"]  # Main branch-la push pannumbodhu idhu run aagum
+    branches: ["main"]
 
 permissions:
-  contents: write  # GitHub Pages-la create panna idhu romba mukkiyam
+  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject Gemini API Key
+      - name: Inject API Key
         run: |
-          # index.html-la irukkira __GEMINI_API_KEY__ placeholder-ai secret key-vudan replace seiyum
-          # 's/old/new/g' format-la sariyaana quotes use pannirukken
+          # index.html la irukira placeholder-ai replace seiyum
           sed -i 's|__GEMINI_API_KEY__|${{ secrets.GEMINI_API_KEY }}|g' index.html
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          publish_branch: gh-pages  # Website indha branch-la thaan load aagum
+          publish_branch: gh-pages
           
